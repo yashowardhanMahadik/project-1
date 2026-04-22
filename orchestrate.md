@@ -7,16 +7,19 @@ You are orchestrating the full development lifecycle for a Spring Boot backend p
 ### Tech Stack
 - Java 21
 - Spring Boot 3.x
-- PostgreSQL (via Docker)
+- PostgreSQL (via Docker, host port 5433)
 - Redis (via Docker, for session/token caching)
 - Maven
-- JWT for authentication (login/logout)
-- Spring Security
+- JWT for authentication (login/logout), role claim embedded (ROLE_EMPLOYEE / ROLE_MANAGER)
+- Spring Security with `@EnableMethodSecurity`
+- **Flowable 7.0.1** (embedded BPMN process engine for ticket approval workflow)
 
 ### Project Requirements
 - REST API backend only (no frontend yet)
 - Auth endpoints: POST /auth/register, POST /auth/login, POST /auth/logout
 - JWT access token + Redis-backed token invalidation on logout
+- **Ticket approval workflow**: OPEN → IN_PROGRESS → PENDING_APPROVAL → APPROVED/REJECTED
+- **Role-based access**: EMPLOYEE creates/works tickets; MANAGER approves/rejects
 - Docker Compose for local infra (Postgres + Redis)
 - Application runs on port 8080
 - Health check endpoint: GET /actuator/health
@@ -27,6 +30,7 @@ You are orchestrating the full development lifecycle for a Spring Boot backend p
 - No Flyway/Liquibase yet — use spring.jpa.hibernate.ddl-auto=create-drop for now
 - Package: com.example.app
 - App name: springboot-auth-starter
+- PostgreSQL mapped to host port 5433 (not 5432) to avoid local PG conflicts
 
 ---
 
@@ -41,11 +45,16 @@ anything yourself. Your only job is: plan, delegate, verify, synthesise.
 1. Use the pm-agent to create CLAUDE.md, docker-compose.yml, and the project skeleton
 
 **Phase 2 — Parallel** (Dev and QA plan are independent once PM is done):
-2. Use the dev-agent to scaffold the full Spring Boot application
+2. Use the dev-agent to scaffold the full Spring Boot application (auth + workflow)
 3. Use the qa-agent to write the test plan and test stubs (can run in parallel with dev-agent)
 
 **Phase 3 — Sequential** (End User review requires working code):
 4. Use the enduser-agent to review the API contract and report gaps
+
+### Notes for subagent prompts
+- Always tell dev-agent that `TicketWorkflowService` requires **detailed inline comments** on every code segment
+- Always pass explicit file paths in prompts — subagents start with zero context
+- dev-agent must implement both the auth layer AND the Flowable workflow layer
 
 ### After all agents complete:
 - Print a "Setup complete" summary listing:
