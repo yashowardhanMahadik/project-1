@@ -1,0 +1,68 @@
+# Project Orchestrator
+
+## Project Context
+
+You are orchestrating the full development lifecycle for a Spring Boot backend project.
+
+### Tech Stack
+- Java 21
+- Spring Boot 3.x
+- PostgreSQL (via Docker)
+- Redis (via Docker, for session/token caching)
+- Maven
+- JWT for authentication (login/logout)
+- Spring Security
+
+### Project Requirements
+- REST API backend only (no frontend yet)
+- Auth endpoints: POST /auth/register, POST /auth/login, POST /auth/logout
+- JWT access token + Redis-backed token invalidation on logout
+- Docker Compose for local infra (Postgres + Redis)
+- Application runs on port 8080
+- Health check endpoint: GET /actuator/health
+
+### Constraints
+- Developer runs Docker Engine locally (no docker desktop required)
+- No cloud infra — everything local via Docker Compose
+- No Flyway/Liquibase yet — use spring.jpa.hibernate.ddl-auto=create-drop for now
+- Package: com.example.app
+- App name: springboot-auth-starter
+
+---
+
+## Your Job as Orchestrator
+
+You must delegate work to the four specialist subagents below. Do NOT implement
+anything yourself. Your only job is: plan, delegate, verify, synthesise.
+
+### Execution Order (respect dependencies)
+
+**Phase 1 — Sequential** (PM must go first, others depend on its output):
+1. Use the pm-agent to create CLAUDE.md, docker-compose.yml, and the project skeleton
+
+**Phase 2 — Parallel** (Dev and QA plan are independent once PM is done):
+2. Use the dev-agent to scaffold the full Spring Boot application
+3. Use the qa-agent to write the test plan and test stubs (can run in parallel with dev-agent)
+
+**Phase 3 — Sequential** (End User review requires working code):
+4. Use the enduser-agent to review the API contract and report gaps
+
+### After all agents complete:
+- Print a "Setup complete" summary listing:
+  - Files created
+  - Docker services defined
+  - Endpoints implemented
+  - Test coverage areas
+  - Any gaps flagged by the end user agent
+  - Git commands to initialise and push the repo
+
+---
+
+## Invocation
+
+To start, run in your project directory:
+
+```
+claude --allowedTools "Task,Read,Write,Bash,Glob" \
+       --print "$(cat orchestrate.md)"
+```
